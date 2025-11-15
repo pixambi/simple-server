@@ -1,0 +1,55 @@
+package config
+
+import (
+	"log"
+	"log/slog"
+	"os"
+
+	"github.com/joho/godotenv"
+)
+
+type Config struct {
+	Addr     string
+	Port     string
+	LogLevel string
+	Logger   *slog.Logger
+}
+
+func Load() *Config {
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found using environment variables and defaults")
+	}
+	cfg := Config{
+		Addr:     getEnv("SERVER_ADDR", "0.0.0.0"),
+		Port:     getEnv("SERVER_PORT", "8080"),
+		LogLevel: getEnv("LOG_LEVEL", "error"),
+	}
+
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: cfg.getLogLevel(),
+	}))
+
+	cfg.Logger = logger
+
+	return &cfg
+}
+
+func getEnv(key, fallback string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return fallback
+}
+
+func (c *Config) getLogLevel() slog.Level {
+	switch c.LogLevel {
+	case "debug":
+		return slog.LevelDebug
+	case "warn":
+		return slog.LevelWarn
+	case "error":
+		return slog.LevelError
+	default:
+		return slog.LevelInfo
+	}
+}
