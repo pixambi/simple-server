@@ -10,7 +10,7 @@ import (
 
 func main() {
 	cfg := config.Load()
-
+ 
 	slog.SetDefault(cfg.Logger)
 
 	server := server.New(cfg)

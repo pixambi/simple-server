@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -11,16 +11,24 @@ import (
 )
 
 type Server struct {
-	Config *config.Config
-	Router *chi.Mux
+	Config   *config.Config
+	Router   *chi.Mux
+	Services *Services
+	Handlers *Handlers
 }
 
 func New(cfg *config.Config) *Server {
 	router := chi.NewRouter()
 
+	//Dependencies
+	services := NewServices(cfg)
+	handlers := NewHandlers(cfg, services)
+
 	s := Server{
-		Config: cfg,
-		Router: router,
+		Config:   cfg,
+		Router:   router,
+		Services: services,
+		Handlers: handlers,
 	}
 
 	//Middleware
@@ -47,7 +55,7 @@ func (s *Server) Start(local bool) error {
 		Addr:    addr,
 		Handler: s.Router,
 	}
-	log.Printf("Starting server on %s\n", addr)
+	slog.Info("Server running", "addr", addr)
 	return server.ListenAndServe()
 }
 
@@ -56,7 +64,6 @@ func (s *Server) Stop() error {
 }
 
 func (s *Server) RegisterRoutes() {
-
 	s.Router.Route("/v1", func(r chi.Router) {
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("Simple Server v1"))
@@ -66,6 +73,9 @@ func (s *Server) RegisterRoutes() {
 			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
 			})
+		})
+		r.Route("/test", func(r chi.Router) {
+			r.Get("/testHandler", s.Handlers.Test.HandleTest)
 		})
 	})
 

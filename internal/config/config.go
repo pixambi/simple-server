@@ -43,11 +43,13 @@ func getEnv(key, fallback string) string {
 
 func (c *Config) getLogLevel() slog.Level {
 	switch c.LogLevel {
-	case "debug":
+	case "error":
 		return slog.LevelDebug
 	case "warn":
+		return slog.LevelInfo
+	case "info":
 		return slog.LevelWarn
-	case "error":
+	case "debug":
 		return slog.LevelError
 	default:
 		return slog.LevelInfo
