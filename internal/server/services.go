@@ -9,8 +9,8 @@ type Services struct {
 	Test *service.TestService
 }
 
-func NewServices(cfg *config.Config) *Services {
+func NewServices(cfg *config.Config, repos *Repositories) *Services {
 	return &Services{
-		Test: service.NewTestService(),
+		Test: service.NewTestService(repos.Test),
 	}
 }

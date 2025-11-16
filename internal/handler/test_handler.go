@@ -18,8 +18,25 @@ func NewTestHandler(cfg *config.Config, testService *service.TestService) *TestH
 }
 
 func (h *TestHandler) HandleTest(w http.ResponseWriter, r *http.Request) {
-	response := h.testService.Ping()
+	response := "Handler response"
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(response))
+}
 
+func (h *TestHandler) HandleService(w http.ResponseWriter, r *http.Request) {
+	response := h.testService.TestService()
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(response))
+}
+
+func (h *TestHandler) HandleDomain(w http.ResponseWriter, r *http.Request) {
+	response := h.testService.TestDomain()
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(response))
+}
+
+func (h *TestHandler) HandleRepo(w http.ResponseWriter, r *http.Request) {
+	response := h.testService.TestRepo()
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(response))
 }

@@ -1,2 +1,2 @@
 # simple-server
-A basic starting project for how I like to setup Golang HTTP servers
+A basic starting project for how I learned to setup GO HTTP servers using clean architecture concepts

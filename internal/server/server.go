@@ -11,24 +11,27 @@ import (
 )
 
 type Server struct {
-	Config   *config.Config
-	Router   *chi.Mux
-	Services *Services
-	Handlers *Handlers
+	Config       *config.Config
+	Router       *chi.Mux
+	Repositories *Repositories
+	Services     *Services
+	Handlers     *Handlers
 }
 
 func New(cfg *config.Config) *Server {
 	router := chi.NewRouter()
 
 	//Dependencies
-	services := NewServices(cfg)
+	repositories := NewRepositories(cfg)
+	services := NewServices(cfg, repositories)
 	handlers := NewHandlers(cfg, services)
 
 	s := Server{
-		Config:   cfg,
-		Router:   router,
-		Services: services,
-		Handlers: handlers,
+		Config:       cfg,
+		Router:       router,
+		Repositories: repositories,
+		Services:     services,
+		Handlers:     handlers,
 	}
 
 	//Middleware
@@ -75,7 +78,10 @@ func (s *Server) RegisterRoutes() {
 			})
 		})
 		r.Route("/test", func(r chi.Router) {
-			r.Get("/testHandler", s.Handlers.Test.HandleTest)
+			r.Get("/test", s.Handlers.Test.HandleTest)
+			r.Get("/testService", s.Handlers.Test.HandleService)
+			r.Get("/testDomain", s.Handlers.Test.HandleDomain)
+			r.Get("/testRepo", s.Handlers.Test.HandleRepo)
 		})
 	})
 
